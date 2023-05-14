@@ -1,5 +1,5 @@
 ﻿using Common.RabbitMq;
-using Producer.Application.Utils;
+using Common.Utils;
 
 namespace Producer.Application.Core.Persons.Handlers;
 

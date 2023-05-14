@@ -1,4 +1,4 @@
-﻿namespace Producer.Application.Utils;
+﻿namespace Common.Utils;
 
 public static class Consts
 {
