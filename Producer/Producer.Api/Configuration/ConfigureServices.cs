@@ -1,4 +1,6 @@
-﻿namespace Producer.Api.Configuration;
+﻿using Common.RabbitMq;
+
+namespace Producer.Api.Configuration;
 
 public static class ConfigureServices
 {
@@ -8,6 +10,11 @@ public static class ConfigureServices
 
         services.AddScoped<NotificationContext>();
         services.AddControllers().AddFluentValidation(_ => _.RegisterValidatorsFromAssemblyContaining<NotificationContext>());
+
+        var connectionString = configuration.GetConnectionString("RabbitMq");
+        var rabbitMqConnection = RabbitMqConnection.Connect(connectionString);
+        services.AddSingleton(rabbitMqConnection);
+        services.AddTransient<IProducer, Common.RabbitMq.Producer>();
         
         return services;
     }

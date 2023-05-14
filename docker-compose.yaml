@@ -16,6 +16,28 @@ services:
     networks:
       - dev-network
 
+  rabbitmq:
+    image: rabbitmq:3.9-management-alpine
+    container_name: rabbitmq
+    user: root
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+      - "25676:25676"
+    networks:
+      - dev-network
+    volumes:
+      - C:\containers\rabbitmq\data:/var/lib/rabbitmq/
+      - C:\containers\rabbitmq\log:/var/log/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
 networks:
   dev-network:
     driver: bridge

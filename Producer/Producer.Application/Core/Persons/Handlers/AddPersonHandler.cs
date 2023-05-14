@@ -1,14 +1,19 @@
-﻿namespace Producer.Application.Core.Persons.Handlers;
+﻿using Common.RabbitMq;
+using Producer.Application.Utils;
+
+namespace Producer.Application.Core.Persons.Handlers;
 
 public class AddPersonHandler : IRequestHandler<AddPersonCommand, BaseResponse>
 {
     private readonly IPersonRepository _repository;
     private readonly NotificationContext _notification;
+    private readonly IProducer _producer;
 
-    public AddPersonHandler(IPersonRepository repository, NotificationContext notification)
+    public AddPersonHandler(IPersonRepository repository, NotificationContext notification, IProducer producer)
     {
         _repository = repository;
         _notification = notification;
+        _producer = producer;
     }
 
     public async Task<BaseResponse> Handle(AddPersonCommand request, CancellationToken cancellationToken)
@@ -31,6 +36,8 @@ public class AddPersonHandler : IRequestHandler<AddPersonCommand, BaseResponse>
 
             return new BaseResponse { Notifications = _notification.Notifications, };
         }
+        
+        _producer.Send(result, Consts.AddPersonExchangeName, Consts.AddPersonQueueName, Consts.AddPersonRoutingKey);
 
         return new BaseResponse { Result = result, };
     }
