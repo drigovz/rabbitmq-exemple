@@ -2,35 +2,44 @@
 
 public class Producer : IProducer
 {
-    private readonly IConnection _connection;
+    private readonly IModel _model;
 
     public Producer(IConnection connection)
     {
-        _connection = connection;
+        _model = connection.CreateModel();
     }
-
-    public void Send(object message, string exchangeName, string queueName, string routingKey, string exchangeType = ExchangeType.Fanout)
+    
+    private void CreateQueues(string queueName)
     {
-        var serializedMessage = JsonSerializer.Serialize(message);
-        var byteMessage = Encoding.UTF8.GetBytes(serializedMessage);
-        
-        using var channel = _connection.CreateModel();
-        
-        channel.QueueDeclare(
+        _model.QueueDeclare(
             queue: queueName,
             durable: false,
             exclusive: false,
             autoDelete: false,
             arguments: null
         );
+    }
 
-        channel.ExchangeDeclare(exchange: exchangeName, type: exchangeType);
+    private void CreateExchange(string exchangeName, string exchangeType)
+    {
+        _model.ExchangeDeclare(exchange: exchangeName, type: exchangeType);
+    }
 
-        // bind queue with exchange 
-        channel.QueueBind(queueName, exchangeName, routingKey);
-
-        // publish message 
-        channel.BasicPublish(
+    private void BindQueues(string exchangeName, string queueName, string routingKey)
+    {
+        _model.QueueBind(queueName, exchangeName, routingKey);
+    }
+    
+    public void Send(object message, string exchangeName, string queueName, string routingKey, string exchangeType = ExchangeType.Fanout)
+    {
+        var serializedMessage = JsonSerializer.Serialize(message);
+        var byteMessage = Encoding.UTF8.GetBytes(serializedMessage);
+        
+        CreateQueues(queueName);
+        CreateExchange(exchangeName, exchangeType);
+        BindQueues(exchangeName, queueName, routingKey);
+        
+        _model.BasicPublish(
             exchange: exchangeName,
             routingKey: routingKey,
             basicProperties: null,
