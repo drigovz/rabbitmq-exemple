@@ -16,7 +16,16 @@ public static class BaseValidations
             .NotEmpty()
             .Must(BeAValidDate)
             .WithMessage("Date must be validate date format!");
+    
+    public static IRuleBuilderOptions<T, string> IsGuid<T>(this IRuleBuilder<T, string> ruleBuilder) =>
+        ruleBuilder.NotNull()
+            .NotEmpty()
+            .Must(BeAValidGuid)
+            .WithMessage("Id must be validate guid format!");
 
     private static bool BeAValidDate(DateTime date) =>
         !date.Equals(default(DateTime));
+    
+    private static bool BeAValidGuid(string value) =>
+        Guid.TryParse(value, out _);
 }
