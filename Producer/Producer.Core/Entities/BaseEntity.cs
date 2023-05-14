@@ -25,7 +25,7 @@ public abstract class BaseEntity
 
     [NotMapped]
     [JsonIgnore]
-    private ValidationResult? ValidationResult { get; set; }
+    public ValidationResult? ValidationResult { get; set; }
 
     protected bool EntityValidation<T>(T model, AbstractValidator<T> validator)
     {

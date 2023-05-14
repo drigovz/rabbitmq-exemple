@@ -1,5 +1,9 @@
-﻿namespace Producer.Application;
-
-public class Usings
-{
-}
+﻿global using Producer.Application.Notificiations;
+global using FluentValidation.Results;
+global using MediatR;
+global using FluentValidation;
+global using Producer.Application.Core.Persons.Commands;
+global using Producer.Application.Core.Persons.Queries;
+global using Producer.Core.Validations;
+global using Producer.Core.Entities;
+global using Producer.Core.Interfaces;

@@ -23,7 +23,7 @@ public class BaseRepository<E, T> : IBaseRepository<E, Guid> where E : BaseEntit
         try
         {
             var entity = await _context.Set<E>().SingleOrDefaultAsync(_ => _.Id == id);
-            return entity is null ? entity : null;
+            return entity is not null ? entity : null;
         }
         catch (Exception ex)
         {
