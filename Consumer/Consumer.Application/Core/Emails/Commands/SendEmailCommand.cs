@@ -1,5 +1,4 @@
-﻿
-namespace Consumer.Application.Core.Emails.Commands;
+﻿namespace Consumer.Application.Core.Emails.Commands;
 
 public class SendEmailCommand  : IRequest<BaseResponse>
 {

@@ -14,7 +14,7 @@ public class RabbitMqConfig
         var factory = new ConnectionFactory
         {
             Uri = new Uri(_connectionString),
-            ClientProvidedName = "app:person:publisher",
+            ClientProvidedName = "app:person:creation",
             DispatchConsumersAsync = true
         };
 
