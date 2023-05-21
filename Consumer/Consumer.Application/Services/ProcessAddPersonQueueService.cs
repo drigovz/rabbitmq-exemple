@@ -1,22 +1,21 @@
-﻿using Common.DTOs;
-using Consumer.Application.Core.Emails.Commands;
-using Newtonsoft.Json;
+﻿using Consumer.Application.Core.Emails.Commands;
 
 namespace Consumer.Application.Services;
 
 public class ProcessAddPersonQueueService : BackgroundService
 {
-    private readonly static IMediator _mediator;
+    private readonly IMediator _mediator;
     private readonly IModel _model;
     private readonly string _exchangeName = Consts.AddPersonExchangeName;
     private readonly string _queueName = Consts.AddPersonQueueName;
     private readonly string _exchangeType = ExchangeType.Fanout;
     private readonly string _routingKey = Consts.AddPersonRoutingKey;
 
-    public ProcessAddPersonQueueService(IConnection connection)
+    public ProcessAddPersonQueueService(IConnection connection, IMediator mediator)
     {
         _model = connection.CreateModel();
         _model.BasicQos(0, 10, false);
+        _mediator = mediator;
     }
     
     private void CreateQueues(string queueName) =>
@@ -35,17 +34,15 @@ public class ProcessAddPersonQueueService : BackgroundService
         BindQueues(_exchangeName, _queueName, _routingKey);
 
         var consumer = new AsyncEventingBasicConsumer(_model);
-        consumer.Received += async (sender, ea) =>
-        {
-            await ProcessMessages(MessageUtilities.Deserialize(ea));
-            _model.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
-        };
+        consumer.Received += ProcessMessages;
 
         _model.BasicConsume(queue: _queueName, autoAck: false, consumer: consumer);
     }
     
-    private static async Task ProcessMessages(string message)
+    private async Task ProcessMessages(object sender, BasicDeliverEventArgs ea)
     {
+        var message = MessageUtilities.Deserialize(ea);
+        
         var sendEmailDto = JsonConvert.DeserializeObject<SendEmailDTO>(message);
         var request = new SendEmailCommand
         {
