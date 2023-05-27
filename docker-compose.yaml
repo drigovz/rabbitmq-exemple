@@ -29,11 +29,13 @@ services:
     volumes:
       - C:\containers\rabbitmq\data:/var/lib/rabbitmq/
       - C:\containers\rabbitmq\log:/var/log/rabbitmq
+      - C:\containers\rabbitmq\mnesia:/var/lib/rabbitmq/mnesia
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_DEFAULT_VHOST}
     healthcheck:
-      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 5s
       timeout: 10s
       retries: 5
