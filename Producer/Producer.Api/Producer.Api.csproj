@@ -13,6 +13,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\Common\Common\Common.csproj" />
+      <ProjectReference Include="..\..\Common\RabbitMq.Helper\RabbitMq.Helper.csproj" />
       <ProjectReference Include="..\Producer.Application\Producer.Application.csproj" />
       <ProjectReference Include="..\Producer.Infra\Producer.Infra.csproj" />
     </ItemGroup>

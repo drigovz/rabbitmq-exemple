@@ -1,20 +1,22 @@
-﻿namespace Common.RabbitMq;
+﻿namespace RabbitMq.Helper.Client;
 
-public class RabbitMqConfig
+internal class Configure
 {
     private readonly string _connectionString;
+    private readonly string _providerName;
 
-    public RabbitMqConfig(string connectionString)
+    public Configure(string connectionString, string providerName)
     {
         _connectionString = connectionString;
+        _providerName = providerName;
     }
-    
+
     public IConnection CreateConnection()
     {
         var factory = new ConnectionFactory
         {
             Uri = new Uri(_connectionString),
-            ClientProvidedName = "app:person:creation",
+            ClientProvidedName = _providerName,
             DispatchConsumersAsync = true
         };
 

@@ -7,3 +7,4 @@ global using Producer.Application.Core.Persons.Queries;
 global using Producer.Core.Validations;
 global using Producer.Core.Entities;
 global using Producer.Core.Interfaces;
+global using RabbitMq.Helper.Interfaces;

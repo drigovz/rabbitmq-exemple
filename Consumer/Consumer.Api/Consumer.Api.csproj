@@ -12,6 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Common\RabbitMq.Helper\RabbitMq.Helper.csproj" />
       <ProjectReference Include="..\Consumer.Application\Consumer.Application.csproj" />
     </ItemGroup>
 

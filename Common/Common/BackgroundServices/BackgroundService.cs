@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
-
-namespace Common.BackgroundServices;
+﻿namespace Common.BackgroundServices;
 
 public abstract class BackgroundService : IHostedService, IDisposable
 {

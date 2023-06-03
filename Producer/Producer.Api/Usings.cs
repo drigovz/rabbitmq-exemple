@@ -12,4 +12,6 @@ global using MediatR;
 global using Microsoft.AspNetCore.Mvc.ModelBinding;
 global using Producer.Application.Core.Persons.Commands;
 global using Producer.Application.Core.Persons.Queries;
-global using Common.RabbitMq;
+global using RabbitMq.Helper.Client;
+global using RabbitMq.Helper.Interfaces;
+global using Common.Utils;

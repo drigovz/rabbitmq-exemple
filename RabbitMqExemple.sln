@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Consumer.Application", "Con
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Consumer.Api", "Consumer\Consumer.Api\Consumer.Api.csproj", "{74F85D25-DBDE-4176-A80E-9692949D3D3C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RabbitMq.Helper", "Common\RabbitMq.Helper\RabbitMq.Helper.csproj", "{87D6D20F-DBD1-4140-A552-8E89C9C3AB99}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,7 @@ Global
 		{D8C2B859-1DA4-4BE0-B953-A26CA93C9B6D} = {5EF968AF-1E36-4360-9B38-70239EE4EBEF}
 		{7DF95985-2780-4F1C-9473-B66D3DF0DFEE} = {A31C160B-88F7-4EFA-B67D-D8A2ACA9F688}
 		{74F85D25-DBDE-4176-A80E-9692949D3D3C} = {A31C160B-88F7-4EFA-B67D-D8A2ACA9F688}
+		{87D6D20F-DBD1-4140-A552-8E89C9C3AB99} = {5EF968AF-1E36-4360-9B38-70239EE4EBEF}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{23DA9811-44C0-41FC-8FF1-9065C5F2E791}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -63,5 +66,9 @@ Global
 		{74F85D25-DBDE-4176-A80E-9692949D3D3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{74F85D25-DBDE-4176-A80E-9692949D3D3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{74F85D25-DBDE-4176-A80E-9692949D3D3C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87D6D20F-DBD1-4140-A552-8E89C9C3AB99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87D6D20F-DBD1-4140-A552-8E89C9C3AB99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87D6D20F-DBD1-4140-A552-8E89C9C3AB99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87D6D20F-DBD1-4140-A552-8E89C9C3AB99}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

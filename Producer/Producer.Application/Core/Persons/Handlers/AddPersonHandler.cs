@@ -1,5 +1,4 @@
-﻿using Common.RabbitMq;
-using Common.Utils;
+﻿using Common.Utils;
 
 namespace Producer.Application.Core.Persons.Handlers;
 
@@ -36,8 +35,11 @@ public class AddPersonHandler : IRequestHandler<AddPersonCommand, BaseResponse>
 
             return new BaseResponse { Notifications = _notification.Notifications, };
         }
+
+        var queueConfig = QueueExchangeObjects.AddPersonQueueConfig;
+        var exchangeConfig = QueueExchangeObjects.AddPersonExchangeConfig;
         
-        _producer.Send(result, Consts.AddPersonExchangeName, Consts.AddPersonQueueName, Consts.AddPersonRoutingKey);
+        _producer.Send(result, queueConfig, exchangeConfig);
 
         return new BaseResponse { Result = result, };
     }
