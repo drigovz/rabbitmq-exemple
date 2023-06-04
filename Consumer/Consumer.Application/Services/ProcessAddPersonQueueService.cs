@@ -35,7 +35,7 @@ public class ProcessAddPersonQueueService : BackgroundService
     {
         var message = Message.Deserialize(ea);
         
-        var sendEmailDto = JsonConvert.DeserializeObject<SendEmailDTO>(message);
+        var sendEmailDto = Message.Deserialize<SendEmailDTO>(message);
         var request = new SendEmailCommand
         {
             Name = $"{sendEmailDto.FirstName} {sendEmailDto.LastName}",

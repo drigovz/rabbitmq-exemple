@@ -10,7 +10,7 @@ public static class ConfigureServices
         var rabbitMqConnection = Connection.Connect(connectionString, Consts.AppProviderName);
         services.AddSingleton(rabbitMqConnection);
         services.AddHostedService<ProcessAddPersonQueueService>();
-        services.AddTransient<IConsumer, RabbitMq.Helper.Utils.Consumer>();
+        services.AddTransient<IConsumer, RabbitMq.Helper.Consumer>();
 
         return services;
     }
