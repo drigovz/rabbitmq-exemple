@@ -10,8 +10,9 @@ public static class Message
     
     public static T? Deserialize<T>(object value)
     {
-        var json = Serialize(value);
-        return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(json));
+        var byteArray = Serialize(value);
+        var json = Encoding.UTF8.GetString(byteArray);
+        return JsonConvert.DeserializeObject<T>(json);
     }
 
     public static byte[] Serialize(object message)
