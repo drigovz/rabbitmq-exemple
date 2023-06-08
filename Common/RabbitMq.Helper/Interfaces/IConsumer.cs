@@ -2,5 +2,5 @@
 
 public interface IConsumer
 {
-    public void Setup(QueueConfig queue, ExchangeConfig exchange);
+    public void Setup(QueueConfig queue, ExchangeConfig exchange, QueueConfig? deadLetterQueue = null, ExchangeConfig? deadLetterExchange = null);
 }

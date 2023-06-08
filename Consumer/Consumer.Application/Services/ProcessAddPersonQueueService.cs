@@ -20,8 +20,8 @@ public class ProcessAddPersonQueueService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var queueConfig = QueueExchangeObjects.AddPersonQueueConfig;
-        var exchangeConfig = QueueExchangeObjects.AddPersonExchangeConfig;
+        var queueConfig = QueueExchangeObjects.AddPersonQueue;
+        var exchangeConfig = QueueExchangeObjects.AddPersonExchange;
         
         _consumer.Setup(queueConfig, exchangeConfig);
 

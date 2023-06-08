@@ -2,5 +2,5 @@
 
 public interface IProducer
 {
-    public void Send(object message, QueueConfig queue, ExchangeConfig exchange);
+    public void Send(object message, QueueConfig queue, ExchangeConfig exchange, QueueConfig deadLetterQueue = null, ExchangeConfig deadLetterExchange = null);
 }

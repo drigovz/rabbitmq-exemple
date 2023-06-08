@@ -36,8 +36,8 @@ public class AddPersonHandler : IRequestHandler<AddPersonCommand, BaseResponse>
             return new BaseResponse { Notifications = _notification.Notifications, };
         }
 
-        var queueConfig = QueueExchangeObjects.AddPersonQueueConfig;
-        var exchangeConfig = QueueExchangeObjects.AddPersonExchangeConfig;
+        var queueConfig = QueueExchangeObjects.AddPersonQueue;
+        var exchangeConfig = QueueExchangeObjects.AddPersonExchange;
         
         _producer.Send(result, queueConfig, exchangeConfig);
 
