@@ -36,5 +36,5 @@ public static class QueueExchangeObjects
         };
     
     public static readonly ExchangeConfig AddPersonExchangeDeadLetter = 
-        new() { Name = Consts.AddPersonExchangeName, Type = ExchangeType.Direct, };
+        new() { Name = Consts.AddPersonExchangeNameDeadLetter, Type = ExchangeType.Direct, };
 }

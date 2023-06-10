@@ -37,9 +37,11 @@ public class AddPersonHandler : IRequestHandler<AddPersonCommand, BaseResponse>
         }
 
         var queueConfig = QueueExchangeObjects.AddPersonQueue;
+        var queueConfigDeadLetter = QueueExchangeObjects.AddPersonQueueDeadLetter;
         var exchangeConfig = QueueExchangeObjects.AddPersonExchange;
+        var exchangeConfigDeadLetter = QueueExchangeObjects.AddPersonExchangeDeadLetter;
         
-        _producer.Send(result, queueConfig, exchangeConfig);
+        _producer.Send(result, queueConfig, exchangeConfig, queueConfigDeadLetter, exchangeConfigDeadLetter);
 
         return new BaseResponse { Result = result, };
     }
