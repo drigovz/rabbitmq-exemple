@@ -9,7 +9,7 @@ riderModule.iml
 # personal options
 /[Tt]est[Rr]esults
 /[Cc]overage[Rr]eport
-*.backup.md
+*.md.backup
 appsettings.Local.json
 .env
 .idea
