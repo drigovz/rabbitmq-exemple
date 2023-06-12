@@ -9,7 +9,6 @@ Na raiz do projeto teremos uma pasta chamada **.docker** que irá conter os arqu
 Teremos um arquivo chamado rabbitmq.dockerfile, com a seguinte configuração:
 
 <code>
-
 		FROM rabbitmq:3.11.16-management
 		RUN apt-get update
 		RUN apt-get install -y curl
@@ -21,7 +20,6 @@ Teremos um arquivo chamado rabbitmq.dockerfile, com a seguinte configuração:
 		RUN rabbitmq-plugins enable --offline rabbitmq_shovel_management
 		RUN rabbitmq-plugins enable --offline rabbitmq_delayed_message_exchange
 		RUN rabbitmq-plugins enable --offline rabbitmq_consistent_hash_exchange
-
 </code>
 
 Teremos também uma pasta chamada **Common** e dentro dela, os projetos compartilhados entre todos os microsserviços. Nessa pasta teremos o projeto chamado **Rabbitmq.Helper**. Dentro desse projeto, teremos as pastas:
@@ -35,7 +33,6 @@ Na pasta Cliente, teremos as classes:
 - **Configure** - Que irá conter o método que irá criar a conexão com o RabbitMQ.
 
 <code>
-
 	namespace RabbitMq.Helper.Client;
 
 	internal class Configure
@@ -61,14 +58,12 @@ Na pasta Cliente, teremos as classes:
 	        return factory.CreateConnection();
 	    }
 	 }
-
 </code>
 
 
 - **Connection** - Que irá de fato a conexão com o RabbitMQ.
 
 <code>
-
 	namespace RabbitMq.Helper.Client;
 	
 	public static class Connection
@@ -80,7 +75,6 @@ Na pasta Cliente, teremos as classes:
 	        return connection;
 	    }
 	}
-
 </code>
 
 
