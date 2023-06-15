@@ -210,3 +210,61 @@ public static class Message
 }
 ```
 
+
+**Queue.cs** - Essa é a classe que contém os métodos de criação de uma Queue no RabbitMQ, nela fizemos o bind e a publicação de uma mensagem.
+
+```C#
+namespace RabbitMq.Helper;
+
+internal static class Queue
+{
+    public static void Declare(IModel model, string queueName, bool durable, bool exclusive, bool autoDelete, IDictionary<string, object> arguments) =>
+        model.QueueDeclare(queue: queueName, durable: durable, exclusive: exclusive, autoDelete: autoDelete, arguments: arguments);
+
+    public static void Bind(IModel model, string queueName, string exchangeName, string routingKey) =>
+        model.QueueBind(queueName, exchangeName, routingKey);
+    
+    public static void Publish(IModel model, string exchangeName, string routingKey, byte[] message, IBasicProperties properties) =>
+        model.BasicPublish(
+            exchange: exchangeName,
+            routingKey: routingKey,
+            basicProperties: properties,
+            body: message
+        );
+}
+```
+
+**Exchange.cs** - Essa é a classe que contém os métodos de criação de um Exchange no RabbitMQ, nela fizemos a criação de um Exchange.
+
+**Consumer.cs** - Temos também a classe Consumer, essa classe é a implementação da interface **IConsumer**, e nela temos o método **Setup**, onde nele, iremos implementar a declaração de uma fila, a criação de um Exchange, o bind dessa fila com esse Exchange e também iremos verificar se uma dead-letter-queue deve ser implementada ou não.
+
+```C#
+namespace RabbitMq.Helper;
+
+public class Consumer : IConsumer
+{
+    private readonly IModel _model;
+
+    public Consumer(IConnection connection)
+    {
+        _model = connection.CreateModel();
+    }
+    
+    public void Setup(QueueConfig queue, ExchangeConfig exchange, QueueConfig? deadLetterQueue = null, ExchangeConfig? deadLetterExchange = null)
+    {
+        Queue.Declare(_model, queue.Name, queue.Durable, queue.Exclusive, queue.AutoDelete, queue.Arguments);
+        Exchange.Create(_model, exchange.Name, exchange.Type, exchange.Durable, exchange.AutoDelete, exchange.Arguments);
+        Queue.Bind(_model, queue.Name, exchange.Name, queue.RoutingKey);
+        
+        if (deadLetterQueue is not null && deadLetterExchange is not null)
+            Queue.Bind(_model, deadLetterQueue.Name, deadLetterExchange.Name, deadLetterQueue.RoutingKey);
+    }
+}
+```
+
+**Producer.cs** - Por fim, temos a classe Producer que é a implementação da interface **Producer**, nessa classe, temos o método **Send**, esse método recebe um objeto como mensagem, e também recebe os objetos de **QueueConfig**, **ExchangeConfig** e os objetos opcionais de dead letter. Da mesma forma que na classe **Consumer**, aqui também estaremos declarando uma fila, estaremos criando um exchange, estaremos fazendo o bind dessa fila com esse exchange, se tivermos configuração para dead letter, estaremos aplicando ela e por fim, realizaremos a publicação dessa mensagem com o método **Publish** da classe **Queue**.
+
+```C#
+
+
+d
