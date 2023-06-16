@@ -1,3 +1,4 @@
+## Lib de Abstração do RabbitMQ
 Na raiz do projeto teremos uma pasta chamada **.docker** que irá conter os arquivos Dockerfile do projeto, no caso dessa edição do RabbitMQ, nós precisaremos de uma versão customizada da imagem do RabbitMQ, com alguns plugins adicionais instalados. São eles:
 
 - rabbitmq_shovel
@@ -28,7 +29,6 @@ Os plugins instalados nessa versão customizada do RabbitMQ são necessários pa
 - **rabbitmq_delayed_message_exchange** - No RabbitMQ existe uma feature chamada Delayed Messages. Ela serve para caso o processamento das mensagens de uma fila falhe, podemos jogá-las novamente na fila, mas informando que ela deve ser processada novamente apenas daqui a x tempo.
 
 Após isso, na raiz do projeto, nós teremos o nosso arquivo do docker compose que irá subir de fato uma instância do RabbitMQ utilizando a imagem customizada que acabamos de criar.
-
 
 ```dockerfile
 version: "3.7"
@@ -67,17 +67,17 @@ networks:
 
 Com isso, teremos a nossa instância do RabbitMQ pronta para uso, e podemos acessá-la através do endereço: **localhost:15672/#/**
 
-### Common
+#### Common
 Teremos também uma pasta chamada **Common** e dentro dela, os projetos compartilhados entre todos os microsserviços. Nessa pasta teremos o projeto chamado **Rabbitmq.Helper**. Dentro desse projeto, teremos as pastas:
 
 - **Clients**: contendo informações sobre as conexões do RabbitMQ.
 - **Interfaces**: contendo as interfaces disponíveis para a injeção de dependência.
 - **Utils**: contendo classes de utilidade em toda a aplicação do RabbitMQ.
 
-#### Clients
+##### Clients
 Na pasta Clients, teremos as classes:
 
-- **Configure** - Que irá conter o método que irá criar a conexão com o RabbitMQ.
+- **Configure** - Que irá conter o método que irá criar a conexão com o RabbitMQ, essa classe foi definida como internal devido a sua não necessidade de exposição para fora dessa Lib.
 
 ```C#
 namespace RabbitMq.Helper.Client;
@@ -104,7 +104,7 @@ internal class Configure
 
 		return factory.CreateConnection();
 	}
-	}
+}
 ```
 
 - **Connection** - Que irá criar de fato a conexão com o RabbitMQ.
@@ -123,7 +123,7 @@ public static class Connection
 }
 ````
 
-#### Interfaces
+##### Interfaces
 Na pasta Interfaces, nós temos os arquivos de interface de contrato **IConsumer** e **IProducer**.
 
 **IConsumer.cs**
@@ -148,7 +148,7 @@ public interface IProducer
 }
 ```
 
-#### Utils
+##### Utils
 Na pasta Utils, nós temos os arquivos de métodos e classes úteis para todo o projeto e implementação do RabbitMQ. Nessa pasta temos as classes:
 
 **ExchangeConfig.cs** - Responsável por conter as propriedades de criação de um Exchange no RabbitMQ.
@@ -210,7 +210,6 @@ public static class Message
 }
 ```
 
-
 **Queue.cs** - Essa é a classe que contém os métodos de criação de uma Queue no RabbitMQ, nela fizemos o bind e a publicação de uma mensagem.
 
 ```C#
@@ -265,6 +264,118 @@ public class Consumer : IConsumer
 **Producer.cs** - Por fim, temos a classe Producer que é a implementação da interface **Producer**, nessa classe, temos o método **Send**, esse método recebe um objeto como mensagem, e também recebe os objetos de **QueueConfig**, **ExchangeConfig** e os objetos opcionais de dead letter. Da mesma forma que na classe **Consumer**, aqui também estaremos declarando uma fila, estaremos criando um exchange, estaremos fazendo o bind dessa fila com esse exchange, se tivermos configuração para dead letter, estaremos aplicando ela e por fim, realizaremos a publicação dessa mensagem com o método **Publish** da classe **Queue**.
 
 ```C#
+namespace RabbitMq.Helper;
 
+public class Producer : IProducer
+{
+    private readonly IModel _model;
+
+    public Producer(IConnection connection)
+    {
+        _model = connection.CreateModel();
+    }
+    
+    public void Send(object message, QueueConfig queue, ExchangeConfig exchange, QueueConfig? deadLetterQueue = null, ExchangeConfig? deadLetterExchange = null)
+    {
+        var byteMessage = Message.Serialize(message);
+
+        Queue.Declare(_model, queue.Name, queue.Durable, queue.Exclusive, queue.AutoDelete, queue.Arguments);
+        Exchange.Create(_model, exchange.Name, exchange.Type, exchange.Durable, exchange.AutoDelete, exchange.Arguments);
+        Queue.Bind(_model, queue.Name, exchange.Name, queue.RoutingKey);
+        
+        if (deadLetterQueue is not null && deadLetterExchange is not null)
+        {
+            Queue.Declare(_model, deadLetterQueue.Name, deadLetterQueue.Durable, deadLetterQueue.Exclusive, deadLetterQueue.AutoDelete, deadLetterQueue.Arguments);
+            Exchange.Create(_model, deadLetterExchange.Name, deadLetterExchange.Type, deadLetterExchange.Durable, deadLetterExchange.AutoDelete, deadLetterExchange.Arguments);
+            Queue.Bind(_model, deadLetterQueue.Name, deadLetterExchange.Name, deadLetterQueue.RoutingKey);
+        }
+        
+        Queue.Publish(_model, exchange.Name, queue.RoutingKey, byteMessage, queue.BasicPublishProperties);
+    }
+}
+```
+
+## Implementação da  biblioteca auxiliar
+Para a utilização dessa biblioteca, teremos na aplicação produtora de mensagens a inclusão nos serviços da nossa aplicação a conexão com o RabbitMQ, que está na nossa biblioteca auxiliar:
+
+```C#
+        var connectionString = configuration.GetConnectionString("RabbitMq");
+        var rabbitMqConnection = Connection.Connect(connectionString, Consts.AppProviderName);
+        services.AddSingleton(rabbitMqConnection);
+        services.AddTransient<IProducer, RabbitMq.Helper.Producer>();
+```
+
+Teremos também a inclusão no container de injeção de dependência do .NET Core a interface **IProducer** e a sua implementação presente na classe **Producer** ambos da nossa biblioteca auxiliar do RabbitMQ.
+
+E por fim, teremos a utilização do nosso método **Send** do producer no Handler ou serviço no qual desejamos criar uma mensagem que enviaremos para o RabbitMQ.
+
+```C#
+    private readonly IProducer _producer;
+
+    public AddPersonHandler(IProducer producer)
+    {
+        _producer = producer;
+    }
+
+	...
+	
+
+        var queueConfig = QueueExchangeObjects.AddPersonQueue;
+        var queueConfigDeadLetter = QueueExchangeObjects.AddPersonQueueDeadLetter;
+        var exchangeConfig = QueueExchangeObjects.AddPersonExchange;
+        var exchangeConfigDeadLetter = QueueExchangeObjects.AddPersonExchangeDeadLetter;
+        
+        _producer.Send(result, queueConfig, exchangeConfig, queueConfigDeadLetter, exchangeConfigDeadLetter);
+
+	
+```
+
+No exemplo acima, estamos criando uma fila e um exchange normais, e uma fila e um exchange para serem seu dead letter. Percebe-se que estamos utilizando os objetos que estão presentes na classe **QueueExchangeObjects**, essa classe está em uma biblioteca comum a todos os microsserviços, e define a criação de objetos do tipo QueueConfig e ExchangeConfig para que possamos informar a nossa biblioteca de abstração do RabbitMQ como desejamos criar nossas filas e exchanges.
+
+#### QueueExchangeObjects
+Essa classe define como os objetos QueueConfig e ExchangeConfig devem ser criados, e pode possuir códigos semelhantes ao seguinte:
+
+```C#
+using RabbitMQ.Client;
+using RabbitMq.Helper.Utils;
+
+namespace Common.Utils;
+
+public static class QueueExchangeObjects
+{
+    public static readonly QueueConfig AddPersonQueue =
+        new()
+        {
+            Name = Consts.AddPersonQueueName,
+            RoutingKey = Consts.AddPersonRoutingKey,
+            Arguments = new Dictionary<string, object>
+            {
+                //TODO: doc - número máximo de tentativas de reprocessamento das mensagens antes de elas entrarem na dead letter
+                { "x-max-length", 6 },
+                //TODO: documentar - para qual dead letter as mensagens irão 
+                { "x-dead-letter-exchange", Consts.AddPersonExchangeNameDeadLetter },
+                { "x-dead-letter-routing-key", Consts.AddPersonRoutingKey },
+            }
+        };
+
+    public static readonly QueueConfig AddPersonQueueDeadLetter =
+        new() { Name = Consts.AddPersonQueueNameDeadLetter, RoutingKey = Consts.AddPersonRoutingKey, };
+
+    public static readonly ExchangeConfig AddPersonExchange = 
+        new()
+        {
+            Name = Consts.AddPersonExchangeName,
+            Type = "x-delayed-message",
+            Arguments = new Dictionary<string, object>
+            {
+                //TODO: doc - Para conseguir utilizar o plugin Delayed Message, é preciso adicionar o argumento x-delayed-type com o valor direct. nos argumentos do exchange
+                { "x-delayed-type", ExchangeType.Direct },
+            }
+        };
+    
+    public static readonly ExchangeConfig AddPersonExchangeDeadLetter = 
+        new() { Name = Consts.AddPersonExchangeNameDeadLetter, Type = ExchangeType.Direct, };
+}
+```
 
 d
