@@ -221,6 +221,8 @@ public static class Message
 }
 ```
 
+Já na pasta raiz do projeto, nós temos as classes:
+
 **Queue.cs** - Essa é a classe que contém os métodos de criação de uma Queue no RabbitMQ, nela fizemos o bind e a publicação de uma mensagem.
 
 ```C#
