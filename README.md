@@ -295,7 +295,7 @@ public class Producer : IProducer
 }
 ```
 
-## Implementação da  biblioteca auxiliar
+## Producer - Implementação da  biblioteca auxiliar
 Para a utilização dessa biblioteca, teremos na aplicação produtora de mensagens a inclusão nos serviços da nossa aplicação a conexão com o RabbitMQ, que está na nossa biblioteca auxiliar:
 
 ```C#
@@ -378,4 +378,103 @@ public static class QueueExchangeObjects
 }
 ```
 
-d
+## Consumer - Implementação da  biblioteca auxiliar
+Para o consumer, devemos primeiramente implementar a conexão do RabbitMQ e a interface **IConsumer** com a sua implementação **Consumer**.
+
+```C#
+var connectionString = configuration.GetConnectionString("RabbitMq");
+var rabbitMqConnection = Connection.Connect(connectionString, Consts.AppProviderName);
+services.AddSingleton(rabbitMqConnection);
+services.AddHostedService<ProcessAddPersonQueueService>();
+services.AddTransient<IConsumer, RabbitMq.Helper.Consumer>();
+```
+
+Após isso, devemos configurar o serviço que irá ficar escutando alguma fila do RabbitMQ como um serviço em background.
+
+```C#
+using Consumer.Application.Core.Emails.Commands;
+using RabbitMq.Helper.Interfaces;
+using RabbitMq.Helper.Utils;
+
+namespace Consumer.Application.Services;
+
+public class ProcessAddPersonQueueService : BackgroundService
+{
+    private readonly IMediator _mediator;
+    private readonly IConsumer _consumer;
+    private readonly IModel _model;
+
+    public ProcessAddPersonQueueService(IConnection connection, IMediator mediator, IConsumer consumer)
+    {
+        _model = connection.CreateModel();
+        _model.BasicQos(0, 10, false);
+        _mediator = mediator;
+        _consumer = consumer;
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        var queueConfig = QueueExchangeObjects.AddPersonQueue;
+        var exchangeConfig = QueueExchangeObjects.AddPersonExchange;
+        
+        _consumer.Setup(queueConfig, exchangeConfig);
+
+        var consumer = new AsyncEventingBasicConsumer(_model);
+        consumer.Received += ProcessMessages;
+
+        _model.BasicConsume(queue: queueConfig.Name, autoAck: false, consumer: consumer);
+    }
+    
+    private async Task ProcessMessages(object sender, BasicDeliverEventArgs ea)
+    {
+        var sendEmailDto = Message.Deserialize<SendEmailDTO>(ea);
+        var request = new SendEmailCommand
+        {
+            Name = $"{sendEmailDto.FirstName} {sendEmailDto.LastName}",
+            Body = "Exemple",
+            Email = sendEmailDto.Email,
+        };
+        
+        await _mediator.Send(request);
+    }
+}
+```
+
+Nesta classe nós temos a sobreescrita do método **ExecuteAsync**, nesse método, nós devemos chamar o método **Setup** da classe **Consumer**, perceba que nesse método, nós chamamos de forma funcional um outro que criamos chamado **ProccessMessages** que será o método que nesse exemplo, estará chamando o Handler de envio de email para cada uma das mensagens que ele encontrar na fila.
+
+Como percebemos, a classe que irá processar as mensagens, está herdando de uma outra classe chamada **BackgroundService**, essa classe também está em uma biblioteca de classes comuns a todos os microsserviços:
+
+```C#
+namespace Common.BackgroundServices;
+
+public abstract class BackgroundService : IHostedService, IDisposable
+{
+    private Task _task;
+    private readonly CancellationTokenSource _cancelationTokenSource = new();
+
+    protected abstract Task ExecuteAsync(CancellationToken stoppingToken);
+    
+    public virtual Task StartAsync(CancellationToken cancellationToken)
+    {
+        _task = ExecuteAsync(_cancelationTokenSource.Token);
+        return _task.IsCompleted ? _task : Task.CompletedTask;
+    }
+    
+    public virtual async Task StopAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            _cancelationTokenSource.Cancel();
+        }
+        finally
+        {
+            await Task.WhenAny(_task, Task.Delay(Timeout.Infinite, cancellationToken));
+        }
+    }
+    
+    public virtual void Dispose() => _cancelationTokenSource.Cancel();
+}
+```
+Nesta classe, nós temos a assinatura do método **ExecuteAsync** ao qual nós sobreescrevemos na classe exibida anteriormente. Temos também o método **StartAsync** que será o método que ficará executando em background até que a task esteja completa. Temos o método **StopAsync** que será o método que irá matar essa task e por fim o método **Dispose** vindo da interface **IDispose** que irá limpar os recursos não utilizados.
+
+Com isso, temos um serviço executando em background que irá escutar as mensagens de uma ou mais filas e executará alguma ação quando essas mensagens forem processadas.
