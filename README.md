@@ -1,5 +1,7 @@
 ## Lib de Abstração do RabbitMQ
-Na raiz do projeto teremos uma pasta chamada **.docker** que irá conter os arquivos Dockerfile do projeto, no caso dessa edição do RabbitMQ, nós precisaremos de uma versão customizada da imagem do RabbitMQ, com alguns plugins adicionais instalados. São eles:
+Na raiz do projeto teremos uma pasta chamada **.docker** que irá conter os arquivos Dockerfile do projeto, no caso dessa edição do RabbitMQ, nós precisaremos de uma versão customizada da imagem do RabbitMQ, com alguns plugins adicionais instalados. 
+
+São eles:
 
 - rabbitmq_shovel
 - rabbitmq_shovel_management
@@ -24,9 +26,9 @@ RUN rabbitmq-plugins enable --offline rabbitmq_consistent_hash_exchange
 
 Os plugins instalados nessa versão customizada do RabbitMQ são necessários para:
 
-- **rabbitmq_shovel** - É um plug-in para que o RabbitMQ transfira as mensagens de uma fila para outra. Utilizamos isso para caso seja necessário reprocessar algumas mensagens, nós poderemos ter essas mensagens em uma fila específica para o reprocessamento.
+- **rabbitmq_shovel** - É um plug-in para que o RabbitMQ transfira as mensagens de uma fila para outra. Utilizamos isso para caso seja necessário reprocessar algumas mensagens, nós podermos ter essas mensagens em uma fila específica para o reprocessamento.
 - **rabbitmq_shovel_management** - UI para gerenciamento do Shovel dentro do RabbitMQ Manager.
-- **rabbitmq_delayed_message_exchange** - No RabbitMQ existe uma feature chamada Delayed Messages. Ela serve para caso o processamento das mensagens de uma fila falhe, podemos jogá-las novamente na fila, mas informando que ela deve ser processada novamente apenas daqui a x tempo.
+- **rabbitmq_delayed_message_exchange** - No RabbitMQ existe uma feature chamada Delayed Messages. Ela serve para caso o processamento das mensagens de uma fila falhe, podermos jogá-las novamente na fila, mas informando que ela deve ser processada novamente apenas em um período de tempo no qual formos definir na própria configuração da fila, ou seja, informamos que desejamos reprocessar essas mensagens, somente daqui a 5 minutos, por exemplo, e não automaticamente agora.
 
 Após isso, na raiz do projeto, nós teremos o nosso arquivo do docker compose que irá subir de fato uma instância do RabbitMQ utilizando a imagem customizada que acabamos de criar.
 
@@ -65,7 +67,16 @@ networks:
     driver: bridge
 ```
 
-Com isso, teremos a nossa instância do RabbitMQ pronta para uso, e podemos acessá-la através do endereço: **localhost:15672/#/**
+Na raiz do projeto teremos um arquivo **.env** contendo informações do RabbitMQ, como:
+
+```.env
+RABBITMQ_USERNAME= Nome de usuário para o login no RabbitMQ
+RABBITMQ_PASSWORD= Senha de usuário para o login no RabbitMQ
+RABBITMQ_DEFAULT_VHOST= Nome do Virtual Host que criaremos para a aplicação
+```
+
+Com isso, teremos a nossa instância do RabbitMQ pronta para uso, e podemos acessá-la através do endereço:
+**localhost:15672/#/**
 
 #### Common
 Teremos também uma pasta chamada **Common** e dentro dela, os projetos compartilhados entre todos os microsserviços. Nessa pasta teremos o projeto chamado **Rabbitmq.Helper**. Dentro desse projeto, teremos as pastas:
@@ -107,7 +118,7 @@ internal class Configure
 }
 ```
 
-- **Connection** - Que irá criar de fato a conexão com o RabbitMQ.
+- **Connection** - Que irá criar de fato a conexão com o RabbitMQ (*Essa será a classe utilizada na classe Program dos projetos*).
 
 ````C#
 namespace RabbitMq.Helper.Client;
@@ -235,7 +246,17 @@ internal static class Queue
 
 **Exchange.cs** - Essa é a classe que contém os métodos de criação de um Exchange no RabbitMQ, nela fizemos a criação de um Exchange.
 
-**Consumer.cs** - Temos também a classe Consumer, essa classe é a implementação da interface **IConsumer**, e nela temos o método **Setup**, onde nele, iremos implementar a declaração de uma fila, a criação de um Exchange, o bind dessa fila com esse Exchange e também iremos verificar se uma dead-letter-queue deve ser implementada ou não.
+```C#
+namespace RabbitMq.Helper;
+
+internal static class Exchange
+{
+    public static void Create(IModel model, string exchangeName, string exchangeType, bool durable, bool autoDelete, IDictionary<string, object> arguments) =>
+        model.ExchangeDeclare(exchange: exchangeName, type: exchangeType, durable: durable, autoDelete: autoDelete, arguments: arguments);
+}
+```
+
+**Consumer.cs** - Temos também a classe Consumer, essa classe é a implementação da interface **IConsumer**, e nela temos o método **Setup**, onde nele, iremos implementar a declaração de uma fila, a criação de um Exchange, o bind dessa fila com esse Exchange e também iremos verificar se uma *dead-letter-queue* deve ser implementada ou não.
 
 ```C#
 namespace RabbitMq.Helper;
@@ -296,18 +317,18 @@ public class Producer : IProducer
 ```
 
 ## Producer - Implementação da  biblioteca auxiliar
-Para a utilização dessa biblioteca, teremos na aplicação produtora de mensagens a inclusão nos serviços da nossa aplicação a conexão com o RabbitMQ, que está na nossa biblioteca auxiliar:
+Para a utilização dessa biblioteca, teremos na aplicação produtora de mensagens a inclusão nos serviços da nossa aplicação e a conexão com o RabbitMQ, que está na nossa biblioteca auxiliar:
 
 ```C#
-        var connectionString = configuration.GetConnectionString("RabbitMq");
-        var rabbitMqConnection = Connection.Connect(connectionString, Consts.AppProviderName);
-        services.AddSingleton(rabbitMqConnection);
-        services.AddTransient<IProducer, RabbitMq.Helper.Producer>();
+    var connectionString = configuration.GetConnectionString("RabbitMq");
+    var rabbitMqConnection = Connection.Connect(connectionString, Consts.AppProviderName);
+    services.AddSingleton(rabbitMqConnection);
+    services.AddTransient<IProducer, RabbitMq.Helper.Producer>();
 ```
 
 Teremos também a inclusão no container de injeção de dependência do .NET Core a interface **IProducer** e a sua implementação presente na classe **Producer** ambos da nossa biblioteca auxiliar do RabbitMQ.
 
-E por fim, teremos a utilização do nosso método **Send** do producer no Handler ou serviço no qual desejamos criar uma mensagem que enviaremos para o RabbitMQ.
+Por fim, teremos a utilização do nosso método **Send** do producer no Handler ou serviço no qual desejamos criar uma mensagem que enviaremos para o RabbitMQ.
 
 ```C#
     private readonly IProducer _producer;
@@ -319,15 +340,12 @@ E por fim, teremos a utilização do nosso método **Send** do producer no Handl
 
 	...
 	
-
-        var queueConfig = QueueExchangeObjects.AddPersonQueue;
-        var queueConfigDeadLetter = QueueExchangeObjects.AddPersonQueueDeadLetter;
-        var exchangeConfig = QueueExchangeObjects.AddPersonExchange;
-        var exchangeConfigDeadLetter = QueueExchangeObjects.AddPersonExchangeDeadLetter;
-        
-        _producer.Send(result, queueConfig, exchangeConfig, queueConfigDeadLetter, exchangeConfigDeadLetter);
-
-	
+    var queueConfig = QueueExchangeObjects.AddPersonQueue;
+    var queueConfigDeadLetter = QueueExchangeObjects.AddPersonQueueDeadLetter;
+    var exchangeConfig = QueueExchangeObjects.AddPersonExchange;
+    var exchangeConfigDeadLetter = QueueExchangeObjects.AddPersonExchangeDeadLetter;
+    
+    _producer.Send(result, queueConfig, exchangeConfig, queueConfigDeadLetter, exchangeConfigDeadLetter);	
 ```
 
 No exemplo acima, estamos criando uma fila e um exchange normais, e uma fila e um exchange para serem seu dead letter. Percebe-se que estamos utilizando os objetos que estão presentes na classe **QueueExchangeObjects**, essa classe está em uma biblioteca comum a todos os microsserviços, e define a criação de objetos do tipo QueueConfig e ExchangeConfig para que possamos informar a nossa biblioteca de abstração do RabbitMQ como desejamos criar nossas filas e exchanges.
@@ -440,7 +458,7 @@ public class ProcessAddPersonQueueService : BackgroundService
 }
 ```
 
-Nesta classe nós temos a sobreescrita do método **ExecuteAsync**, nesse método, nós devemos chamar o método **Setup** da classe **Consumer**, perceba que nesse método, nós chamamos de forma funcional um outro que criamos chamado **ProccessMessages** que será o método que nesse exemplo, estará chamando o Handler de envio de email para cada uma das mensagens que ele encontrar na fila.
+Nesta classe nós temos a sobreescrita do método **ExecuteAsync**, nesse método, nós devemos chamar o método **Setup** da classe **Consumer**, perceba que nesse método, nós chamamos de forma funcional um outro método que criamos chamado **ProccessMessages** que será o método que nesse exemplo, estará chamando o Handler de envio de email para cada uma das mensagens que ele encontrar na fila.
 
 Como percebemos, a classe que irá processar as mensagens, está herdando de uma outra classe chamada **BackgroundService**, essa classe também está em uma biblioteca de classes comuns a todos os microsserviços:
 
@@ -477,4 +495,4 @@ public abstract class BackgroundService : IHostedService, IDisposable
 ```
 Nesta classe, nós temos a assinatura do método **ExecuteAsync** ao qual nós sobreescrevemos na classe exibida anteriormente. Temos também o método **StartAsync** que será o método que ficará executando em background até que a task esteja completa. Temos o método **StopAsync** que será o método que irá matar essa task e por fim o método **Dispose** vindo da interface **IDispose** que irá limpar os recursos não utilizados.
 
-Com isso, temos um serviço executando em background que irá escutar as mensagens de uma ou mais filas e executará alguma ação quando essas mensagens forem processadas.
+Com isso, temos um serviço executando em background que irá escutar as mensagens de uma ou mais filas e executará alguma ação ou chamará algum serviço quando essas mensagens forem processadas.
