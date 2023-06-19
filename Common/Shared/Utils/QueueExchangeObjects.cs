@@ -11,6 +11,8 @@ public static class QueueExchangeObjects
             {
                 //TODO: doc - número máximo de tentativas de reprocessamento das mensagens antes de elas entrarem na dead letter
                 { "x-max-length", 6 },
+                //TODO: doc - adicionar um atraso em milissegundos a cada mensagem da fila antes de elas serem processadas
+                { "x-delay", 2500 },
                 //TODO: documentar - para qual dead letter as mensagens irão 
                 { "x-dead-letter-exchange", Consts.AddPersonExchangeNameDeadLetter },
                 { "x-dead-letter-routing-key", Consts.AddPersonRoutingKey },
