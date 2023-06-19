@@ -1,4 +1,4 @@
-﻿namespace Common.Utils;
+﻿namespace Shared.Utils;
 
 public static class Consts
 {

@@ -4,6 +4,6 @@ global using Consumer.Application.Core.Emails.Commands;
 global using Consumer.Api.Configuration;
 global using Consumer.Application.Core;
 global using Consumer.Application.Services;
-global using Common.Utils;
+global using Shared.Utils;
 global using RabbitMq.Helper.Client;
 global using RabbitMq.Helper.Interfaces;

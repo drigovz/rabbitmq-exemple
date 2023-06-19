@@ -1,7 +1,4 @@
-﻿using RabbitMQ.Client;
-using RabbitMq.Helper.Utils;
-
-namespace Common.Utils;
+﻿namespace Shared.Utils;
 
 public static class QueueExchangeObjects
 {

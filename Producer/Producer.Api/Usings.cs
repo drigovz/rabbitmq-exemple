@@ -14,4 +14,4 @@ global using Producer.Application.Core.Persons.Commands;
 global using Producer.Application.Core.Persons.Queries;
 global using RabbitMq.Helper.Client;
 global using RabbitMq.Helper.Interfaces;
-global using Common.Utils;
+global using Shared.Utils;

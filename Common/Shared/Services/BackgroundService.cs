@@ -1,4 +1,4 @@
-﻿namespace Common.BackgroundServices;
+﻿namespace Shared.Services;
 
 public abstract class BackgroundService : IHostedService, IDisposable
 {

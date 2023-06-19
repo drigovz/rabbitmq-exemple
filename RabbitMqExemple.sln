@@ -12,7 +12,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Producer.Api", "Producer\Pr
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{5EF968AF-1E36-4360-9B38-70239EE4EBEF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common\Common.csproj", "{D8C2B859-1DA4-4BE0-B953-A26CA93C9B6D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Common\Shared\Shared.csproj", "{D8C2B859-1DA4-4BE0-B953-A26CA93C9B6D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Consumer", "Consumer", "{A31C160B-88F7-4EFA-B67D-D8A2ACA9F688}"
 EndProject

@@ -1,4 +1,4 @@
-﻿using Common.Utils;
+﻿using Shared.Utils;
 
 namespace Producer.Application.Core.Persons.Handlers;
 

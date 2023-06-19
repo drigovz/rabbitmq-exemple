@@ -1,4 +1,4 @@
-﻿namespace Common.DTOs;
+﻿namespace Shared.DTOs;
 
 public class SendEmailDTO
 {
