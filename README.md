@@ -28,9 +28,9 @@ Os plugins instalados nessa versão customizada do RabbitMQ são necessários pa
 
 - **rabbitmq_shovel** - É um plug-in para que o RabbitMQ transfira as mensagens de uma fila para outra. Utilizamos isso para caso seja necessário reprocessar algumas mensagens, nós podermos ter essas mensagens em uma fila específica para o reprocessamento.
 - **rabbitmq_shovel_management** - UI para gerenciamento do Shovel dentro do RabbitMQ Manager.
-- **rabbitmq_delayed_message_exchange** - No RabbitMQ existe uma feature chamada Delayed Messages. Ela serve para caso o processamento das mensagens de uma fila falhe, podermos jogá-las novamente na fila, mas informando que ela deve ser processada novamente apenas em um período de tempo no qual formos definir na própria configuração da fila, ou seja, informamos que desejamos reprocessar essas mensagens, somente daqui a 5 minutos, por exemplo, e não automaticamente agora.
+- **rabbitmq_delayed_message_exchange** - No RabbitMQ existe uma feature chamada Delayed Messages. Ela serve para caso o processamento das mensagens de uma fila falhe, podermos jogá-las novamente na fila, mas informando que ela deve ser processada novamente apenas em um período de tempo no qual formos definir na própria configuração da fila, ou seja, informamos que desejamos reprocessar essas mensagens, somente daqui a 5 minutos, por exemplo, e não necessariamente agora.
 
-Após isso, na raiz do projeto, nós teremos o nosso arquivo do docker compose que irá subir de fato uma instância do RabbitMQ utilizando a imagem customizada que acabamos de criar.
+Após isso, na raiz do projeto, nós teremos o nosso arquivo do **docker compose** que irá subir de fato uma instância do RabbitMQ utilizando a imagem customizada que acabamos de criar.
 
 ```dockerfile
 version: "3.7"
@@ -81,12 +81,12 @@ Com isso, teremos a nossa instância do RabbitMQ pronta para uso, e podemos aces
 #### Common
 Teremos também uma pasta chamada **Common** e dentro dela, os projetos compartilhados entre todos os microsserviços. Nessa pasta teremos o projeto chamado **Rabbitmq.Helper**. Dentro desse projeto, teremos as pastas:
 
-- **Clients**: contendo informações sobre as conexões do RabbitMQ.
+- **Client**: contendo informações sobre as conexões do RabbitMQ.
 - **Interfaces**: contendo as interfaces disponíveis para a injeção de dependência.
 - **Utils**: contendo classes de utilidade em toda a aplicação do RabbitMQ.
 
-##### Clients
-Na pasta Clients, teremos as classes:
+##### Client
+Na pasta Client, teremos as classes:
 
 - **Configure** - Que irá conter o método que irá criar a conexão com o RabbitMQ, essa classe foi definida como internal devido a sua não necessidade de exposição para fora dessa Lib.
 
@@ -95,26 +95,26 @@ namespace RabbitMq.Helper.Client;
 
 internal class Configure
 {
-	private readonly string _connectionString;
-	private readonly string _providerName;
+    private readonly string _connectionString;
+    private readonly string _providerName;
 
-	public Configure(string connectionString, string providerName)
-	{
-		_connectionString = connectionString;
-		_providerName = providerName;
-	}
+    public Configure(string connectionString, string providerName)
+    {
+        _connectionString = connectionString;
+        _providerName = providerName;
+    }
 
-	public IConnection CreateConnection()
-	{
-		var factory = new ConnectionFactory
-		{
-			Uri = new Uri(_connectionString),
-			ClientProvidedName = _providerName,
-			DispatchConsumersAsync = true
-		};
+    public IConnection CreateConnection()
+    {
+        var factory = new ConnectionFactory
+        {
+            Uri = new Uri(_connectionString),
+            ClientProvidedName = _providerName,
+            DispatchConsumersAsync = true
+        };
 
-		return factory.CreateConnection();
-	}
+        return factory.CreateConnection();
+    }
 }
 ```
 
@@ -125,12 +125,12 @@ namespace RabbitMq.Helper.Client;
 
 public static class Connection
 {
-	public static IConnection Connect(string connectionString, string providerName)
-	{
-		var connectionFactory = new Configure(connectionString, providerName);
-		var connection = connectionFactory.CreateConnection();
-		return connection;
-	}
+    public static IConnection Connect(string connectionString, string providerName)
+    {
+        var connectionFactory = new Configure(connectionString, providerName);
+        var connection = connectionFactory.CreateConnection();
+        return connection;
+    }
 }
 ````
 
@@ -144,7 +144,7 @@ namespace RabbitMq.Helper.Interfaces;
 
 public interface IConsumer
 {
-	public void Setup(QueueConfig queue, ExchangeConfig exchange, QueueConfig? deadLetterQueue = null, ExchangeConfig? deadLetterExchange = null);
+    public void Setup(QueueConfig queue, ExchangeConfig exchange, QueueConfig? deadLetterQueue = null, ExchangeConfig? deadLetterExchange = null);
 }
 ```
 
@@ -155,7 +155,7 @@ namespace RabbitMq.Helper.Interfaces;
 
 public interface IProducer
 {
-	public void Send(object message, QueueConfig queue, ExchangeConfig exchange, QueueConfig deadLetterQueue = null, ExchangeConfig deadLetterExchange = null);
+    public void Send(object message, QueueConfig queue, ExchangeConfig exchange, QueueConfig deadLetterQueue = null, ExchangeConfig deadLetterExchange = null);
 }
 ```
 
@@ -169,11 +169,11 @@ namespace RabbitMq.Helper.Utils;
 
 public class ExchangeConfig
 {
-	public string Name { get; set; }
-	public string Type { get; set; } = ExchangeType.Fanout;
-	public bool Durable { get; set; } = false;
-	public bool AutoDelete { get; set; } = false;
-	public IDictionary<string, object>? Arguments { get; set; } = null;
+    public string Name { get; set; }
+    public string Type { get; set; } = ExchangeType.Fanout;
+    public bool Durable { get; set; } = false;
+    public bool AutoDelete { get; set; } = false;
+    public IDictionary<string, object>? Arguments { get; set; } = null;
 }
 ```
 
@@ -284,7 +284,7 @@ public class Consumer : IConsumer
 }
 ```
 
-**Producer.cs** - Por fim, temos a classe Producer que é a implementação da interface **Producer**, nessa classe, temos o método **Send**, esse método recebe um objeto como mensagem, e também recebe os objetos de **QueueConfig**, **ExchangeConfig** e os objetos opcionais de dead letter. Da mesma forma que na classe **Consumer**, aqui também estaremos declarando uma fila, estaremos criando um exchange, estaremos fazendo o bind dessa fila com esse exchange, se tivermos configuração para dead letter, estaremos aplicando ela e por fim, realizaremos a publicação dessa mensagem com o método **Publish** da classe **Queue**.
+**Producer.cs** - Por fim, temos a classe Producer que é a implementação da interface **IProducer**, nessa classe, temos o método **Send**, esse método recebe um objeto como mensagem, e também recebe os objetos de **QueueConfig**, **ExchangeConfig** e os objetos opcionais de dead letter. Da mesma forma que na classe **Consumer**, aqui também estaremos declarando uma fila, estaremos criando um exchange, estaremos fazendo o bind dessa fila com esse exchange, se tivermos configuração para dead letter, estaremos aplicando ela e por fim, realizaremos a publicação dessa mensagem com o método **Publish** da classe **Queue**.
 
 ```C#
 namespace RabbitMq.Helper;
@@ -322,10 +322,10 @@ public class Producer : IProducer
 Para a utilização dessa biblioteca, teremos na aplicação produtora de mensagens a inclusão nos serviços da nossa aplicação e a conexão com o RabbitMQ, que está na nossa biblioteca auxiliar:
 
 ```C#
-    var connectionString = configuration.GetConnectionString("RabbitMq");
-    var rabbitMqConnection = Connection.Connect(connectionString, Consts.AppProviderName);
-    services.AddSingleton(rabbitMqConnection);
-    services.AddTransient<IProducer, RabbitMq.Helper.Producer>();
+var connectionString = configuration.GetConnectionString("RabbitMq");
+var rabbitMqConnection = Connection.Connect(connectionString, Consts.AppProviderName);
+services.AddSingleton(rabbitMqConnection);
+services.AddTransient<IProducer, RabbitMq.Helper.Producer>();
 ```
 
 Teremos também a inclusão no container de injeção de dependência do .NET Core a interface **IProducer** e a sua implementação presente na classe **Producer** ambos da nossa biblioteca auxiliar do RabbitMQ.
@@ -333,21 +333,21 @@ Teremos também a inclusão no container de injeção de dependência do .NET Co
 Por fim, teremos a utilização do nosso método **Send** do producer no Handler ou serviço no qual desejamos criar uma mensagem que enviaremos para o RabbitMQ.
 
 ```C#
-    private readonly IProducer _producer;
+private readonly IProducer _producer;
 
-    public AddPersonHandler(IProducer producer)
-    {
-        _producer = producer;
-    }
+public AddPersonHandler(IProducer producer)
+{
+    _producer = producer;
+}
 
-	...
-	
-    var queueConfig = QueueExchangeObjects.AddPersonQueue;
-    var queueConfigDeadLetter = QueueExchangeObjects.AddPersonQueueDeadLetter;
-    var exchangeConfig = QueueExchangeObjects.AddPersonExchange;
-    var exchangeConfigDeadLetter = QueueExchangeObjects.AddPersonExchangeDeadLetter;
-    
-    _producer.Send(result, queueConfig, exchangeConfig, queueConfigDeadLetter, exchangeConfigDeadLetter);	
+...
+
+var queueConfig = QueueExchangeObjects.AddPersonQueue;
+var queueConfigDeadLetter = QueueExchangeObjects.AddPersonQueueDeadLetter;
+var exchangeConfig = QueueExchangeObjects.AddPersonExchange;
+var exchangeConfigDeadLetter = QueueExchangeObjects.AddPersonExchangeDeadLetter;
+
+_producer.Send(result, queueConfig, exchangeConfig, queueConfigDeadLetter, exchangeConfigDeadLetter);	
 ```
 
 No exemplo acima, estamos criando uma fila e um exchange normais, e uma fila e um exchange para serem seu dead letter. Percebe-se que estamos utilizando os objetos que estão presentes na classe **QueueExchangeObjects**, essa classe está em uma biblioteca comum a todos os microsserviços, e define a criação de objetos do tipo QueueConfig e ExchangeConfig para que possamos informar a nossa biblioteca de abstração do RabbitMQ como desejamos criar nossas filas e exchanges.
@@ -406,7 +406,7 @@ services.AddHostedService<ProcessAddPersonQueueService>();
 services.AddTransient<IConsumer, RabbitMq.Helper.Consumer>();
 ```
 
-Após isso, devemos configurar o serviço que irá ficar escutando alguma fila do RabbitMQ como um serviço em background.
+Após isso, devemos configurar o serviço que irá ficar escutando alguma fila do RabbitMQ como um serviço em background por meio do serviço AddHostedService. Com isso, devemos configurar o serviço que irá ficar escutando alguma fila do RabbitMQ como um serviço em background. Esse serviço está presente na classe **ProcessAddPersonQueueService**.
 
 ```C#
 using Consumer.Application.Core.Emails.Commands;
@@ -457,12 +457,12 @@ public class ProcessAddPersonQueueService : BackgroundService
 }
 ```
 
-Nesta classe nós temos a sobreescrita do método **ExecuteAsync**, nesse método, nós devemos chamar o método **Setup** da classe **Consumer**, perceba que nesse método, nós chamamos de forma funcional um outro método que criamos chamado **ProccessMessages** que será o método que nesse exemplo, estará chamando o Handler de envio de email para cada uma das mensagens que ele encontrar na fila.
+Nesta classe nós temos a sobrescrita do método **ExecuteAsync**, nesse método, nós devemos chamar o método **Setup** da classe **Consumer**, perceba que nesse método, nós chamamos de forma funcional um outro método que criamos chamado **ProcessMessages** que será o método que nesse exemplo, estará chamando o Handler de envio de email para cada uma das mensagens que ele encontrar na fila.
 
-Como percebemos, a classe que irá processar as mensagens, está herdando de uma outra classe chamada **BackgroundService**, essa classe também está em uma biblioteca de classes comuns a todos os microsserviços:
+Como percebemos, a classe que irá processar as mensagens, está herdando de uma outra classe chamada BackgroundService, essa classe também está em uma biblioteca de classes comuns a todos os microsserviços:
 
 ```C#
-namespace Common.BackgroundServices;
+namespace Shared.Services;
 
 public abstract class BackgroundService : IHostedService, IDisposable
 {
