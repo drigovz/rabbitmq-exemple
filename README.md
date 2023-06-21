@@ -356,10 +356,7 @@ No exemplo acima, estamos criando uma fila e um exchange normais, e uma fila e u
 Essa classe define como os objetos QueueConfig e ExchangeConfig devem ser criados, e pode possuir códigos semelhantes ao seguinte:
 
 ```C#
-using RabbitMQ.Client;
-using RabbitMq.Helper.Utils;
-
-namespace Common.Utils;
+namespace Shared.Utils;
 
 public static class QueueExchangeObjects
 {
@@ -371,6 +368,7 @@ public static class QueueExchangeObjects
             Arguments = new Dictionary<string, object>
             {
                 { "x-max-length", 6 },
+                { "x-delay", 2500 },
                 { "x-dead-letter-exchange", Consts.AddPersonExchangeNameDeadLetter },
                 { "x-dead-letter-routing-key", Consts.AddPersonRoutingKey },
             }
@@ -394,6 +392,18 @@ public static class QueueExchangeObjects
         new() { Name = Consts.AddPersonExchangeNameDeadLetter, Type = ExchangeType.Direct, };
 }
 ```
+Nessa classe, estamos definindo no objeto **AddPersonQueue** que é do tipo **QueueConfig** _(que são os tipos que definimos lá na class library do RabbitMQ.Helper)_ e nele definimos que a fila será criada com os seguintes argumentos:
+
+- **x-max-length** - Terá como 6 o número máximo de tentativas de reprocessamento das mensagens antes de elas entrarem na dead letter.
+- **x-delay** - Com o x-delay estamos utilizando os recursos do plugin x-delayed-message para adicionar um atraso em milissegundos (no exemplo 2500 milissegundos, 2.5 segundos, ou seja, 2 segundos e meio) para as mensagens quando elas precisarem ser processadas.
+- **x-dead-letter-exchange** - Configuração da dead-letter-exchange. Para qual exchange essas mensagens deverão ir se as 6 tentativas de reprocessamento falharem.
+- **x-dead-letter-routing-key** - Qual é a Routing Key que esse exchange irá apontar.
+
+E no objeto **AddPersonQueueDeadLetter** estamos criando uma dead-letter-queue.
+
+Já no objeto **AddPersonExchange**, estamos indicando que o seu tipo será **x-delayed-message** ou seja, estaremos utilizando um dos plugins que adicionamos no RabbitMQ, e indicando que esse Exchange será do tipo delayed-message, e deverá fornecer um atraso para as mensagens (atraso esse que indicamos em milissegundos no objeto AddPersonQueue na propriedade x-delay). Isso porque ao processar mensagens, a entrega instantânea nem sempre é a opção desejada ou a melhor. Fornecer um atraso no processamento de uma mensagem é ideal para cenários com períodos de espera difíceis, como processos de configuração ou ao tentar garantir que os clientes tenham a chance de ler mensagens de texto.
+
+O plugin delayed-message do RabbitMQ é usado para implementar um tempo de espera entre quando uma mensagem chega ao Exchange e quando é entregue a uma fila. Cada vez que uma mensagem é publicada, um deslocamento em milissegundos pode ser especificado. Já nos argumentos desse exchange, estamos definindo o tipo do delayed como Direct.
 
 ## Consumer - Implementação da  biblioteca auxiliar
 Para o consumer, devemos primeiramente implementar a conexão do RabbitMQ e a interface **IConsumer** com a sua implementação **Consumer**.
