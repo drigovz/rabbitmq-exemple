@@ -1,4 +1,6 @@
-﻿namespace Producer.Api.Configuration;
+﻿using Producer.Api.Middlewares;
+
+namespace Producer.Api.Configuration;
 
 public static class ConfigureServices
 {
@@ -8,6 +10,8 @@ public static class ConfigureServices
 
         services.AddScoped<NotificationContext>();
         services.AddControllers().AddFluentValidation(_ => _.RegisterValidatorsFromAssemblyContaining<NotificationContext>());
+
+        services.AddTransient<GlobalExceptionMiddleware>();
 
         var connectionString = configuration.GetConnectionString("RabbitMq");
         var rabbitMqConnection = Connection.Connect(connectionString, Consts.AppProviderName);

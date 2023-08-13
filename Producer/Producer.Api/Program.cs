@@ -1,4 +1,5 @@
 using Producer.Api.Configuration;
+using Producer.Api.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,5 +23,6 @@ if (app.Environment.IsDevelopment() || env.EnvironmentName == "Local")
 }
 
 app.UseAuthorization();
+app.UseMiddleware<GlobalExceptionMiddleware>();
 app.MapControllers();
 app.Run();
