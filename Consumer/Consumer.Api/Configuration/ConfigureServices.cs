@@ -4,7 +4,7 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddMediatR(_ => _.RegisterServicesFromAssembly(typeof(BaseResponse).Assembly));
+        services.AddMediatR(x => x.RegisterServicesFromAssembly(typeof(BaseResponse).Assembly));
         
         var connectionString = configuration.GetConnectionString("RabbitMq");
         var rabbitMqConnection = Connection.Connect(connectionString, Consts.AppProviderName);
