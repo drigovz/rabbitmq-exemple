@@ -1,0 +1,20 @@
+{
+  "name": "rabbitmqexemple",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"no test specified\"",
+    "prepare": "husky install"
+  },
+  "lint-staged": {
+    "*.cs": "dotnet format --include"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "husky": "^8.0.0",
+    "lint-staged": "^15.2.7"
+  }
+}
