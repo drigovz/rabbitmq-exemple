@@ -1,4 +1,4 @@
-﻿namespace Producer.Application.Core.Persons.Handlers;
+namespace Producer.Application.Core.Persons.Handlers;
 
 public class GetPersonHandler : IRequestHandler<GetPersonQuery, BaseResponse>
 {

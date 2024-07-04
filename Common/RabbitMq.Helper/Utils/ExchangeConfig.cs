@@ -1,4 +1,4 @@
-﻿namespace RabbitMq.Helper.Utils;
+namespace RabbitMq.Helper.Utils;
 
 public class ExchangeConfig
 {

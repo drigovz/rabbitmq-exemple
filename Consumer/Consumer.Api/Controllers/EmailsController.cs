@@ -1,4 +1,4 @@
-﻿namespace Consumer.Api.Controllers;
+namespace Consumer.Api.Controllers;
 
 [Produces("application/json")]
 [Route("api/[controller]")]
@@ -11,7 +11,7 @@ public class EmailsController : ControllerBase
     {
         _mediator = mediator;
     }
-    
+
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] SendEmailCommand command) =>
         Ok(await _mediator.Send(command));

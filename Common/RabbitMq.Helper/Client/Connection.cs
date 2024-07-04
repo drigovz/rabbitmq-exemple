@@ -1,4 +1,4 @@
-﻿namespace RabbitMq.Helper.Client;
+namespace RabbitMq.Helper.Client;
 
 public static class Connection
 {

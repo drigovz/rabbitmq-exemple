@@ -1,4 +1,4 @@
-﻿using Producer.Core.Validations;
+using Producer.Core.Validations;
 
 namespace Producer.Core.Entities;
 

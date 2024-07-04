@@ -1,4 +1,4 @@
-﻿global using Producer.Application.Notificiations;
+global using Producer.Application.Notificiations;
 global using FluentValidation.Results;
 global using MediatR;
 global using FluentValidation;

@@ -1,4 +1,4 @@
-﻿namespace Producer.Application.Core.Persons.Validators;
+namespace Producer.Application.Core.Persons.Validators;
 
 public class UpdatePersonValidator : AbstractValidator<UpdatePersonCommand>
 {

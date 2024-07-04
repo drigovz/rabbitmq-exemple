@@ -1,4 +1,4 @@
-﻿namespace Shared.Utils;
+namespace Shared.Utils;
 
 public static class QueueExchangeObjects
 {
@@ -19,7 +19,7 @@ public static class QueueExchangeObjects
     public static readonly QueueConfig AddPersonQueueDeadLetter =
         new() { Name = Consts.AddPersonQueueNameDeadLetter, RoutingKey = Consts.AddPersonRoutingKey, };
 
-    public static readonly ExchangeConfig AddPersonExchange = 
+    public static readonly ExchangeConfig AddPersonExchange =
         new()
         {
             Name = Consts.AddPersonExchangeName,
@@ -29,7 +29,7 @@ public static class QueueExchangeObjects
                 { "x-delayed-type", ExchangeType.Direct },
             }
         };
-    
-    public static readonly ExchangeConfig AddPersonExchangeDeadLetter = 
+
+    public static readonly ExchangeConfig AddPersonExchangeDeadLetter =
         new() { Name = Consts.AddPersonExchangeNameDeadLetter, Type = ExchangeType.Direct, };
 }

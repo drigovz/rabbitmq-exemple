@@ -1,4 +1,4 @@
-﻿namespace RabbitMq.Helper.Interfaces;
+namespace RabbitMq.Helper.Interfaces;
 
 public interface IConsumer
 {

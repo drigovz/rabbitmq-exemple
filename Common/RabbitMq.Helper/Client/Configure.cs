@@ -1,4 +1,4 @@
-﻿namespace RabbitMq.Helper.Client;
+namespace RabbitMq.Helper.Client;
 
 internal class Configure
 {

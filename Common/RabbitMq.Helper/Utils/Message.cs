@@ -1,4 +1,4 @@
-﻿namespace RabbitMq.Helper.Utils;
+namespace RabbitMq.Helper.Utils;
 
 public static class Message
 {
@@ -7,7 +7,7 @@ public static class Message
         var body = eventArgs.Body.ToArray();
         return Encoding.UTF8.GetString(body);
     }
-    
+
     public static T? Deserialize<T>(BasicDeliverEventArgs eventArgs)
     {
         var json = Deserialize(eventArgs);

@@ -1,4 +1,4 @@
-﻿namespace Producer.Core.Interfaces;
+namespace Producer.Core.Interfaces;
 
 public interface IBaseRepository<E, T> where E : BaseEntity
 {

@@ -1,4 +1,4 @@
-﻿namespace Producer.Core.Entities;
+namespace Producer.Core.Entities;
 
 public abstract class BaseEntity
 {

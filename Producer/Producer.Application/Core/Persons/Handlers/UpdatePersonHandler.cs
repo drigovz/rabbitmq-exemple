@@ -1,6 +1,6 @@
-﻿namespace Producer.Application.Core.Persons.Handlers;
+namespace Producer.Application.Core.Persons.Handlers;
 
-public class UpdatePersonHandler  : IRequestHandler<UpdatePersonCommand, BaseResponse>
+public class UpdatePersonHandler : IRequestHandler<UpdatePersonCommand, BaseResponse>
 {
     private readonly IPersonRepository _repository;
     private readonly NotificationContext _notification;
@@ -21,11 +21,11 @@ public class UpdatePersonHandler  : IRequestHandler<UpdatePersonCommand, BaseRes
             };
 
         person.Update(
-            request.FirstName ?? person.FirstName, 
-            request.LastName ?? person.LastName, 
+            request.FirstName ?? person.FirstName,
+            request.LastName ?? person.LastName,
             request.Email ?? person.Email
         );
-        
+
         await _repository.UpdateAsync(person);
 
         return new BaseResponse

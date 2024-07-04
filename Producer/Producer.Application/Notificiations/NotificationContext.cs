@@ -1,4 +1,4 @@
-﻿namespace Producer.Application.Notificiations;
+namespace Producer.Application.Notificiations;
 
 public class NotificationContext
 {

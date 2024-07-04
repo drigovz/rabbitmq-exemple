@@ -1,4 +1,4 @@
-﻿namespace Producer.Api.Controllers;
+namespace Producer.Api.Controllers;
 
 [Produces("application/json")]
 [Route("api/[controller]")]
@@ -11,7 +11,7 @@ public class PersonsController : ControllerBase
     {
         _mediator = mediator;
     }
-    
+
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] AddPersonCommand command) =>
         Ok(await _mediator.Send(command));
@@ -19,7 +19,7 @@ public class PersonsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> Get([BindRequired] Guid id) =>
         Ok(await _mediator.Send(new GetPersonQuery { Id = id }));
-    
+
     [HttpPatch]
     public async Task<IActionResult> Post([FromBody] UpdatePersonCommand command) =>
         Ok(await _mediator.Send(command));

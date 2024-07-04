@@ -1,4 +1,4 @@
-﻿using Consumer.Application.Core.Emails.Commands;
+using Consumer.Application.Core.Emails.Commands;
 using RabbitMq.Helper.Interfaces;
 using RabbitMq.Helper.Utils;
 
@@ -22,7 +22,7 @@ public class ProcessAddPersonQueueService : BackgroundService
     {
         var queueConfig = QueueExchangeObjects.AddPersonQueue;
         var exchangeConfig = QueueExchangeObjects.AddPersonExchange;
-        
+
         _consumer.Setup(queueConfig, exchangeConfig);
 
         var consumer = new AsyncEventingBasicConsumer(_model);
@@ -30,7 +30,7 @@ public class ProcessAddPersonQueueService : BackgroundService
 
         _model.BasicConsume(queue: queueConfig.Name, autoAck: false, consumer: consumer);
     }
-    
+
     private async Task ProcessMessages(object sender, BasicDeliverEventArgs ea)
     {
         var sendEmailDto = Message.Deserialize<SendEmailDTO>(ea);
@@ -40,7 +40,7 @@ public class ProcessAddPersonQueueService : BackgroundService
             Body = "Exemple",
             Email = sendEmailDto.Email,
         };
-        
+
         await _mediator.Send(request);
     }
 }

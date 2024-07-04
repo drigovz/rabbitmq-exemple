@@ -1,4 +1,4 @@
-﻿namespace Producer.Core.Validations;
+namespace Producer.Core.Validations;
 
 public static class BaseValidations
 {
@@ -16,7 +16,7 @@ public static class BaseValidations
             .NotEmpty()
             .Must(BeAValidDate)
             .WithMessage("Date must be validate date format!");
-    
+
     public static IRuleBuilderOptions<T, string> IsGuid<T>(this IRuleBuilder<T, string> ruleBuilder) =>
         ruleBuilder.NotNull()
             .NotEmpty()
@@ -25,7 +25,7 @@ public static class BaseValidations
 
     private static bool BeAValidDate(DateTime date) =>
         !date.Equals(default(DateTime));
-    
+
     private static bool BeAValidGuid(string value) =>
         Guid.TryParse(value, out _);
 }

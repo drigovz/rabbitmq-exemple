@@ -1,4 +1,4 @@
-﻿namespace Producer.Infra.Context;
+namespace Producer.Infra.Context;
 
 public class AppDbContext : DbContext
 {

@@ -1,4 +1,4 @@
-﻿namespace Producer.Api.Configuration;
+namespace Producer.Api.Configuration;
 
 public static class ConfigureRepository
 {

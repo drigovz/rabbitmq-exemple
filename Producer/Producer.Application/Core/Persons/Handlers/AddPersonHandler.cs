@@ -1,4 +1,4 @@
-﻿using Shared.Utils;
+using Shared.Utils;
 
 namespace Producer.Application.Core.Persons.Handlers;
 
@@ -40,7 +40,7 @@ public class AddPersonHandler : IRequestHandler<AddPersonCommand, BaseResponse>
         var queueConfigDeadLetter = QueueExchangeObjects.AddPersonQueueDeadLetter;
         var exchangeConfig = QueueExchangeObjects.AddPersonExchange;
         var exchangeConfigDeadLetter = QueueExchangeObjects.AddPersonExchangeDeadLetter;
-        
+
         _producer.Send(result, queueConfig, exchangeConfig, queueConfigDeadLetter, exchangeConfigDeadLetter);
 
         return new BaseResponse { Result = result, };

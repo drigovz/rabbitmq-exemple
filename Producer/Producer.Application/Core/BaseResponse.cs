@@ -1,4 +1,4 @@
-﻿namespace Producer.Application.Core;
+namespace Producer.Application.Core;
 
 public class BaseResponse
 {

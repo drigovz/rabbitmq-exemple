@@ -1,4 +1,4 @@
-﻿namespace Producer.Application.Core.Persons;
+namespace Producer.Application.Core.Persons;
 
 public abstract class PersonCommand : IRequest<BaseResponse>
 {

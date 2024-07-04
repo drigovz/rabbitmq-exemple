@@ -1,4 +1,4 @@
-﻿namespace Producer.Infra.Repository;
+namespace Producer.Infra.Repository;
 
 public class BaseRepository<E, T> : IBaseRepository<E, Guid> where E : BaseEntity
 {

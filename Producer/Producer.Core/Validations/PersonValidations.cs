@@ -1,4 +1,4 @@
-﻿namespace Producer.Core.Validations;
+namespace Producer.Core.Validations;
 
 public class PersonValidations : AbstractValidator<Person>
 {

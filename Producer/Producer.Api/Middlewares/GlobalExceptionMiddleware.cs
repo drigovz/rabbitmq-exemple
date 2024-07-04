@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 
 namespace Producer.Api.Middlewares;
 
@@ -12,7 +12,7 @@ public class GlobalExceptionMiddleware : IMiddleware
         _logger = logger;
         _notification = notification;
     }
-    
+
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         try
@@ -24,10 +24,10 @@ public class GlobalExceptionMiddleware : IMiddleware
             var message = ex.Message;
             context.Response.ContentType = "application/json";
             var statusCode = context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            
+
             _logger.LogError($"Exception Details: {message}");
             _notification.AddNotification(statusCode.ToString(), message);
-            
+
             var response = new BaseResponse { Notifications = _notification.Notifications, };
 
             await context.Response.WriteAsJsonAsync(response);

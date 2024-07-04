@@ -1,4 +1,4 @@
-﻿namespace RabbitMq.Helper;
+namespace RabbitMq.Helper;
 
 internal static class Exchange
 {

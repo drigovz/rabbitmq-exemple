@@ -1,4 +1,4 @@
-﻿using Producer.Api.Middlewares;
+using Producer.Api.Middlewares;
 
 namespace Producer.Api.Configuration;
 
@@ -17,7 +17,7 @@ public static class ConfigureServices
         var rabbitMqConnection = Connection.Connect(connectionString, Consts.AppProviderName);
         services.AddSingleton(rabbitMqConnection);
         services.AddTransient<IProducer, RabbitMq.Helper.Producer>();
-        
+
         return services;
     }
 }

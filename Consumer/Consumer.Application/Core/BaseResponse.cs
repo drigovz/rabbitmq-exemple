@@ -1,4 +1,4 @@
-﻿namespace Consumer.Application.Core;
+namespace Consumer.Application.Core;
 
 public class BaseResponse
 {

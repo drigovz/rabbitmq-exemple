@@ -1,4 +1,4 @@
-﻿namespace Producer.Infra.Repository.Persons;
+namespace Producer.Infra.Repository.Persons;
 
 public class PersonRepository : BaseRepository<Person, Guid>, IPersonRepository
 {

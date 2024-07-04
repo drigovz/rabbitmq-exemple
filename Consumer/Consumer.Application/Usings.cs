@@ -1,4 +1,4 @@
-﻿global using MediatR;
+global using MediatR;
 global using Shared.Services;
 global using Shared.Utils;
 global using RabbitMQ.Client;

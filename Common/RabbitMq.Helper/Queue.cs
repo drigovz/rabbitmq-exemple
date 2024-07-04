@@ -1,4 +1,4 @@
-﻿namespace RabbitMq.Helper;
+namespace RabbitMq.Helper;
 
 internal static class Queue
 {
@@ -7,7 +7,7 @@ internal static class Queue
 
     public static void Bind(IModel model, string queueName, string exchangeName, string routingKey) =>
         model.QueueBind(queueName, exchangeName, routingKey);
-    
+
     public static void Publish(IModel model, string exchangeName, string routingKey, byte[] message, IBasicProperties properties) =>
         model.BasicPublish(
             exchange: exchangeName,
