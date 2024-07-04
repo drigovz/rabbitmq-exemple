@@ -1,8 +1,8 @@
-﻿namespace Producer.Infra.Repository.Persons;
+namespace Producer.Infra.Repository.Persons;
 
 public class PersonRepository : BaseRepository<Person, Guid>, IPersonRepository
 {
-    public PersonRepository(AppDbContext context)
-        : base(context)
-    { }
+	public PersonRepository(AppDbContext context)
+		: base(context)
+	{ }
 }

@@ -1,6 +1,6 @@
-﻿namespace Consumer.Application.Core;
+namespace Consumer.Application.Core;
 
 public class BaseResponse
 {
-    public dynamic? Result { get; set; } = default;
+	public dynamic? Result { get; set; } = default;
 }
